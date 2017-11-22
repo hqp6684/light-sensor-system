@@ -1,0 +1,28 @@
+{
+  "name": "wp2",
+  "version": "1.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --config webpack.config.js",
+    "clean": "npm cache clear && rimraf -- dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^4.0.39",
+    "@types/noble": "0.0.34",
+    "express": "^4.16.2",
+    "noble": "^1.8.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.0.35",
+    "rimraf": "^2.6.2",
+    "ts-loader": "^3.1.1",
+    "tslint": "^5.5.0",
+    "typescript": "^2.6.0",
+    "webpack": "^3.3.0"
+  }
+}
