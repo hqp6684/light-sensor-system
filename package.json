@@ -15,7 +15,8 @@
     "@types/express": "^4.0.39",
     "@types/noble": "0.0.34",
     "express": "^4.16.2",
-    "noble": "^1.8.1"
+    "noble": "^1.8.1",
+    "rxjs": "^5.5.2"
   },
   "devDependencies": {
     "@types/express": "^4.0.35",

@@ -1,13 +1,20 @@
 import * as express from 'express';
 
+import { Noble } from './noble';
+
 export class App {
   public express: express.Application;
+  private noble: Noble;
 
   // Run configuration methods on the Express instance.
   constructor() {
     this.express = express();
     // this.middleware();
     this.routes();
+
+    this.initNoble();
+
+    this.onExit();
   }
 
   // Configure API endpoints.
@@ -30,5 +37,18 @@ export class App {
       }
     );
     this.express.use('/', router);
+  }
+
+  private initNoble() {
+    this.noble = new Noble();
+  }
+
+  private onExit() {
+    process.on('SIGINT', () => {
+      console.log('Exiting');
+      this.noble.disconnect();
+
+      process.exit();
+    });
   }
 }
