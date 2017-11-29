@@ -2,6 +2,8 @@ import * as express from 'express';
 
 import { Noble } from './noble';
 
+let st = require('sensortag');
+
 export class App {
   public express: express.Application;
   private noble: Noble;
