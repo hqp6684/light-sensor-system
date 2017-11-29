@@ -32,8 +32,22 @@ export interface SensorTagI {
   unnotifyLuxometer(callback: (error: any) => void): void;
   readLuxometer(callback: (error: any, lux: any) => void): void;
 
+  enableTemperature(callback: (error: any) => void): void;
+
+  disableTemperature(callback: (error: any) => void): void;
+
+  // period 100 - 2550 ms, default period is 1000 ms
+  setTemperaturePeriod(period: number, callback: (error: any) => void): void;
+
+  notifyTemperature(callback: (error: any) => void): void;
+
+  unnotifyTemperature(callback: (error: any) => void): void;
+  readTemperature(callback: (error: any, lux: any) => void): void;
+
   on(event: SensorTagEvent, callback: (x: any, y?: any, z?: any) => void): void;
+
   luxometer$: Observable<number>;
+  temperature$: Observable<number>;
 }
 
 export class SensorTags {
@@ -57,7 +71,7 @@ export class SensorTags {
               console.log(err);
             }
           });
-          sensorTag.notifyLuxometer(err => {});
+          sensorTag.notifyLuxometer(debugError);
           sensorTag.on('luxometerChange', lux => {
             console.log(lux);
           });
@@ -74,4 +88,8 @@ export class SensorTags {
       });
     });
   }
+}
+
+function debugError(err: any) {
+  console.log(err);
 }
