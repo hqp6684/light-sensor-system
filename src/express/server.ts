@@ -1,12 +1,14 @@
 import * as express from 'express';
 
 import { Noble } from './noble';
+import { SensorTags } from './st';
 
 let st = require('sensortag');
 
 export class App {
   public express: express.Application;
   private noble: Noble;
+  private sensorTags: SensorTags;
 
   // Run configuration methods on the Express instance.
   constructor() {
@@ -14,7 +16,9 @@ export class App {
     // this.middleware();
     this.routes();
 
-    this.initNoble();
+    // this.initNoble();
+
+    this.initSensorTags();
 
     this.onExit();
   }
@@ -45,10 +49,16 @@ export class App {
     this.noble = new Noble();
   }
 
+  private initSensorTags() {
+    console.log('Initializing SensorTags');
+    this.sensorTags = new SensorTags();
+  }
+
   private onExit() {
     process.on('SIGINT', () => {
       console.log('Exiting');
-      this.noble.disconnect();
+      // this.noble.disconnect();
+      this.sensorTags.disconnect();
 
       process.exit();
     });

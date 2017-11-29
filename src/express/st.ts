@@ -1,3 +1,4 @@
+import { Observable } from 'rxjs';
 const ST = require('sensortag');
 // import * as ST from '../../node_modules/sensortag';
 
@@ -32,24 +33,45 @@ export interface SensorTagI {
   readLuxometer(callback: (error: any, lux: any) => void): void;
 
   on(event: SensorTagEvent, callback: (x: any, y?: any, z?: any) => void): void;
+  luxometer$: Observable<number>;
 }
 
 export class SensorTags {
   private _ids = ['id1'];
+  private defaultSensorUUID = '247189E96F86'.toLowerCase();
   sensorTags: SensorTagI[] = [];
-  constructor() {}
+  constructor() {
+    this.connectAndSetUp();
+  }
 
   connectAndSetUp() {
-    ST.discoverByid(this._ids[0], (sensorTag: SensorTagI) => {
+    ST.discoverById(this.defaultSensorUUID, (sensorTag: SensorTagI) => {
       sensorTag.connectAndSetUp(error => {
+        console.log('Connected to', this.defaultSensorUUID);
         if (error) {
           console.log(error);
         } else {
+          sensorTag.enableLuxometer(err => {
+            console.log('Enabled luxometer');
+            if (err) {
+              console.log(err);
+            }
+          });
+          sensorTag.notifyLuxometer(err => {});
+          sensorTag.on('luxometerChange', lux => {
+            console.log(lux);
+          });
           this.sensorTags.push(sensorTag);
         }
       });
     });
   }
 
-  disconnect() {}
+  disconnect() {
+    this.sensorTags.forEach(sensor => {
+      sensor.disconnect(err => {
+        console.log(err);
+      });
+    });
+  }
 }
