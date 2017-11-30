@@ -51,34 +51,67 @@ export interface SensorTagI {
 }
 
 export class SensorTags {
-  private _ids = ['id1'];
   private defaultSensorUUID = '247189E96F86'.toLowerCase();
+  private secondarySensorUUID = '546C0E53064C'.toLowerCase();
+  private _ids = [this.defaultSensorUUID, this.secondarySensorUUID];
+  private _connectedDeviceCount = 0;
   sensorTags: SensorTagI[] = [];
   constructor() {
     this.connectAndSetUp();
   }
 
-  connectAndSetUp() {
-    ST.discoverById(this.defaultSensorUUID, (sensorTag: SensorTagI) => {
-      sensorTag.connectAndSetUp(error => {
-        console.log('Connected to', this.defaultSensorUUID);
-        if (error) {
-          console.log(error);
-        } else {
-          sensorTag.enableLuxometer(err => {
-            console.log('Enabled luxometer');
-            if (err) {
-              console.log(err);
-            }
-          });
-          sensorTag.notifyLuxometer(debugError);
-          sensorTag.on('luxometerChange', lux => {
-            console.log(lux);
-          });
-          this.sensorTags.push(sensorTag);
-        }
+  private async discoverById(id: string) {
+    return await new Promise<SensorTagI>((resolve, reject) => {
+      ST.discoverById(id, (sensorTag: SensorTagI) => {
+        console.log('Discovered : ', id);
+        // this.sensorTags.push(sensorTag);
+        resolve(sensorTag);
       });
     });
+  }
+
+  private async _connectAndSetUp(sensorTag: SensorTagI) {
+    return await new Promise<SensorTagI>((resolve, reject) => {
+      sensorTag.connectAndSetUp(error => {
+        if (error) {
+          console.log('Error at connect and set up : ', sensorTag.id);
+          reject(error);
+        }
+        console.log(sensorTag.id, ' connected');
+        resolve(sensorTag);
+      });
+    });
+  }
+
+  private async _connectAndSetUpAll() {
+    await Promise.all(
+      this._ids.map(async id => {
+        let sensorTag = await this.discoverById(id);
+        console.log('Pushing sensor');
+        this.sensorTags.push(sensorTag);
+      })
+    );
+    console.log('Setting up');
+    await Promise.all(
+      this.sensorTags.map(async sensorTag => {
+        sensorTag = await this._connectAndSetUp(sensorTag);
+        console.log('Setup is done');
+        sensorTag.enableLuxometer(err => {
+          console.log('Enabled luxometer');
+          if (err) {
+            console.log(err);
+          }
+        });
+        sensorTag.notifyLuxometer(debugError);
+        sensorTag.on('luxometerChange', lux => {
+          console.log(sensorTag.id, lux);
+        });
+      })
+    );
+  }
+
+  connectAndSetUp() {
+    this._connectAndSetUpAll();
   }
 
   disconnect() {
