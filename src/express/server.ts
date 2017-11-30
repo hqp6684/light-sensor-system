@@ -3,12 +3,14 @@ import * as express from 'express';
 import { Noble } from './noble';
 import { SensorTags } from './st';
 
+import * as path from 'path';
+
 let st = require('sensortag');
 
 export class App {
   public express: express.Application;
   private noble: Noble;
-  private sensorTags: SensorTags;
+  private sensorTagCtl: SensorTags;
 
   // Run configuration methods on the Express instance.
   constructor() {
@@ -16,9 +18,7 @@ export class App {
     // this.middleware();
     this.routes();
 
-    // this.initNoble();
-
-    this.initSensorTags();
+    // this.initSensorTags();
 
     this.onExit();
   }
@@ -37,28 +37,35 @@ export class App {
         res: express.Response,
         _next: express.NextFunction
       ) => {
-        res.json({
-          message: 'Hello World!'
-        });
+        // res.sendFile(path.join(__dirname, '/pages/index.html'));
+        // console.log(path.join(__dirname, 'pages'));
+        res.sendFile('index.html', { root: path.join(__dirname, '/pages') });
+        // res.json({
+        //   message: 'Hello World!'
+        // });
       }
     );
     this.express.use('/', router);
   }
 
-  private initNoble() {
-    this.noble = new Noble();
+  // private initNoble() {
+  //   this.noble = new Noble();
+  // }
+
+  private async initSensorTags() {
+    console.log('Initializing SensorTags');
+    this.sensorTagCtl = new SensorTags();
+    await this.sensorTagCtl.connectAndSetUp();
+    this.setupRoutes();
   }
 
-  private initSensorTags() {
-    console.log('Initializing SensorTags');
-    this.sensorTags = new SensorTags();
-  }
+  private setupRoutes() {}
 
   private onExit() {
     process.on('SIGINT', () => {
       console.log('Exiting');
       // this.noble.disconnect();
-      this.sensorTags.disconnect();
+      this.sensorTagCtl.disconnect();
 
       process.exit();
     });

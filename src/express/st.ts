@@ -1,8 +1,9 @@
 import { Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 const ST = require('sensortag');
 // import * as ST from '../../node_modules/sensortag';
 
-export type SensorTagEvent = 'gyroscopeChange' | 'luxometerChange';
+export type SensorTagEvent = 'irTemperatureChange' | 'luxometerChange';
 
 export interface SensorTagI {
   id: string;
@@ -46,8 +47,8 @@ export interface SensorTagI {
 
   on(event: SensorTagEvent, callback: (x: any, y?: any, z?: any) => void): void;
 
-  luxometer$: Observable<number>;
-  temperature$: Observable<number>;
+  luxometer$: BehaviorSubject<number>;
+  temperature$: BehaviorSubject<any>;
 }
 
 export class SensorTags {
@@ -57,7 +58,7 @@ export class SensorTags {
   private _connectedDeviceCount = 0;
   sensorTags: SensorTagI[] = [];
   constructor() {
-    this.connectAndSetUp();
+    // this.connectAndSetUp();
   }
 
   private async discoverById(id: string) {
@@ -70,7 +71,7 @@ export class SensorTags {
     });
   }
 
-  private async _connectAndSetUp(sensorTag: SensorTagI) {
+  private async _connect(sensorTag: SensorTagI) {
     return await new Promise<SensorTagI>((resolve, reject) => {
       sensorTag.connectAndSetUp(error => {
         if (error) {
@@ -78,40 +79,61 @@ export class SensorTags {
           reject(error);
         }
         console.log(sensorTag.id, ' connected');
+
         resolve(sensorTag);
       });
     });
   }
 
-  private async _connectAndSetUpAll() {
+  private async _setup(sensorTag: SensorTagI) {
+    return await new Promise<SensorTagI>((resolve, reject) => {
+      // Create Observables
+      sensorTag.luxometer$ = new BehaviorSubject(0);
+      sensorTag.temperature$ = new BehaviorSubject(null);
+
+      sensorTag.enableLuxometer(debugErrorFn);
+      // Tell sensor tag to notify
+      sensorTag.notifyLuxometer(debugErrorFn);
+      sensorTag.on('luxometerChange', lux => {
+        sensorTag.luxometer$.next(lux);
+      });
+
+      sensorTag.enableTemperature(debugErrorFn);
+      sensorTag.notifyTemperature(debugErrorFn);
+      sensorTag.on(
+        'irTemperatureChange',
+        (objectTemperature: any, ambientTemperature: any) => {
+          sensorTag.temperature$.next({
+            objectTemperature: objectTemperature,
+            ambientTemperature: ambientTemperature
+          });
+        }
+      );
+    });
+  }
+
+  private async _connectSetUpAll() {
     await Promise.all(
       this._ids.map(async id => {
         let sensorTag = await this.discoverById(id);
-        console.log('Pushing sensor');
         this.sensorTags.push(sensorTag);
       })
     );
-    console.log('Setting up');
     await Promise.all(
       this.sensorTags.map(async sensorTag => {
-        sensorTag = await this._connectAndSetUp(sensorTag);
-        console.log('Setup is done');
-        sensorTag.enableLuxometer(err => {
-          console.log('Enabled luxometer');
-          if (err) {
-            console.log(err);
-          }
-        });
-        sensorTag.notifyLuxometer(debugError);
-        sensorTag.on('luxometerChange', lux => {
-          console.log(sensorTag.id, lux);
-        });
+        sensorTag = await this._connect(sensorTag);
+      })
+    );
+
+    await Promise.all(
+      this.sensorTags.map(async sensorTag => {
+        sensorTag = await this._setup(sensorTag);
       })
     );
   }
 
-  connectAndSetUp() {
-    this._connectAndSetUpAll();
+  async connectAndSetUp() {
+    this._connectSetUpAll();
   }
 
   disconnect() {
@@ -123,6 +145,6 @@ export class SensorTags {
   }
 }
 
-function debugError(err: any) {
+function debugErrorFn(err: any) {
   console.log(err);
 }
