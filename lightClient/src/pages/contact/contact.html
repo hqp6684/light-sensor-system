@@ -1,17 +1,73 @@
 <ion-header>
+
   <ion-navbar>
-    <ion-title>
-      Contact
-    </ion-title>
+    <ion-title>Settings</ion-title>
   </ion-navbar>
+
 </ion-header>
 
-<ion-content>
+
+<ion-content class="outer-content">
+
   <ion-list>
-    <ion-list-header>Follow us on Twitter</ion-list-header>
+    <ion-list-header>
+      General
+    </ion-list-header>
+
     <ion-item>
-      <ion-icon name="ionic" item-start></ion-icon>
-      @ionicframework
+      <ion-icon name="code-download" item-start color="primary"></ion-icon>
+      <ion-label>Pulling Period</ion-label>
+      <!-- <ion-toggle color="secondary"></ion-toggle> -->
+
+      <button ion-button outline item-end (click)="presentPullingPeriodActionSheet()" *ngIf="defaultPullingPeriod===1;else seconds">
+        {{defaultPullingPeriod}} second
+      </button>
+      <ng-template #seconds>
+        <button ion-button outline item-end (click)="presentPullingPeriodActionSheet()">
+          {{defaultPullingPeriod}} seconds
+        </button>
+      </ng-template>
+
+    </ion-item>
+
+    <button ion-item>
+      <ion-icon name="wifi" item-start color="primary"></ion-icon>
+      <ion-label>Wi-Fi</ion-label>
+      <ion-note item-end>The Interwebz</ion-note>
+    </button>
+
+    <button ion-item>
+      <ion-icon name="bluetooth" item-start color="primary"></ion-icon>
+      <ion-label>Bluetooth</ion-label>
+      <ion-note item-end>Off</ion-note>
+    </button>
+
+    <button ion-item>
+      <ion-icon name="call" item-start color="secondary"></ion-icon>
+      <ion-label>Cellular</ion-label>
+    </button>
+
+    <button ion-item>
+      <ion-icon name="link" item-start color="secondary"></ion-icon>
+      <ion-label>Personal Hotspot</ion-label>
+      <ion-note item-end>Off</ion-note>
+    </button>
+  </ion-list>
+
+  <ion-list radio-group>
+    <ion-list-header>
+      Temperature
+    </ion-list-header>
+
+    <ion-item>
+      <ion-label color="dark">Always</ion-label>
+      <ion-radio value="always" checked></ion-radio>
+    </ion-item>
+    <ion-item>
+      <ion-label color="dark">Only while phone is locked</ion-label>
+      <ion-radio value="locked"></ion-radio>
     </ion-item>
   </ion-list>
+
+
 </ion-content>

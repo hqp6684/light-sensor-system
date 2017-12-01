@@ -29,6 +29,10 @@ export class SensorTagProvider {
 
   sensorTags$ = new BehaviorSubject<Map<string, SensorTagI>>(new Map());
 
+  defaultPullingPeriod$ = new BehaviorSubject<number>(1);
+
+  defaultTempUnit$ = new BehaviorSubject<string>('f');
+
   private createSocketClient() {
     this.socket = io('/', { port: '8080' });
   }
@@ -46,22 +50,19 @@ export class SensorTagProvider {
       let currentValues = this.sensorTags$.value;
       currentValues.set(sensorTag.id, sensorTag);
     });
+
+    this.socket.on('pullingPeriod', (period: number) => {
+      this.defaultPullingPeriod$.next(period);
+    });
   }
 
-  // listen(event: string) {
-  //   switch (event) {
-  //     case 'sensorTag':
-  //       return this.sensorTagEvent();
-  //   }
-  // }
-
-  // private sensorTagEvent() {
-  //   this.socket.on('sensorTag', (sensorTag: SensorTagI) => {
-  //     let currentValues = this.sensorTags$.value;
-  //     if (!currentValues.indexOf(sensorTag)) {
-  //       currentValues.push(sensorTag);
-  //       this.sensorTags$.next(currentValues);
-  //     }
-  //   });
-  // }
+  setNewPullingPeriod(period: number) {
+    if (period >= 0) {
+      return;
+    }
+    // convert to ms
+    period = period * 1000;
+    this.socket.emit('pullingPeriod', period);
+    this.defaultPullingPeriod$.next(period);
+  }
 }
