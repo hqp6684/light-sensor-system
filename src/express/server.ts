@@ -27,7 +27,7 @@ export class Server {
     // this.middleware();
     this.routes();
 
-    // this.initSensorTags();
+    this.initSensorTags();
 
     this.setUpSocketEvents();
     this.listen();
@@ -125,6 +125,7 @@ export class Server {
 
     sources.forEach(obs => {
       obs.subscribe(data => {
+        console.log(data);
         this.ioServer.emit('sensorTag', data);
       });
     });

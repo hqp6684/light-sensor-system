@@ -5,8 +5,8 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 export interface SensorTagI {
   id: string;
-  luxometer$: BehaviorSubject<number>;
-  temperature$: BehaviorSubject<any>;
+  luxometer: number;
+  temperatures: { objectTemperatre: any; ambientTemperature: any };
 }
 
 /*
@@ -27,7 +27,7 @@ export class SensorTagProvider {
   socket: SocketIOClient.Socket;
   socketConnected$ = new BehaviorSubject<boolean>(false);
 
-  sensorTags$ = new BehaviorSubject<SensorTagI[]>([]);
+  sensorTags$ = new BehaviorSubject<Map<string, SensorTagI>>(new Map());
 
   private createSocketClient() {
     this.socket = io('/', { port: '8080' });
@@ -42,11 +42,9 @@ export class SensorTagProvider {
     });
 
     this.socket.on('sensorTag', (sensorTag: SensorTagI) => {
+      console.log(sensorTag);
       let currentValues = this.sensorTags$.value;
-      if (!currentValues.indexOf(sensorTag)) {
-        currentValues.push(sensorTag);
-        this.sensorTags$.next(currentValues);
-      }
+      currentValues.set(sensorTag.id, sensorTag);
     });
   }
 

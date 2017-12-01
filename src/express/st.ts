@@ -33,17 +33,17 @@ export interface SensorTagI {
   unnotifyLuxometer(callback: (error: any) => void): void;
   readLuxometer(callback: (error: any, lux: any) => void): void;
 
-  enableTemperature(callback: (error: any) => void): void;
+  enableIrTemperature(callback: (error: any) => void): void;
 
-  disableTemperature(callback: (error: any) => void): void;
+  disableIrTemperature(callback: (error: any) => void): void;
 
   // period 100 - 2550 ms, default period is 1000 ms
-  setTemperaturePeriod(period: number, callback: (error: any) => void): void;
+  setIrTemperaturePeriod(period: number, callback: (error: any) => void): void;
 
-  notifyTemperature(callback: (error: any) => void): void;
+  notifyIrTemperature(callback: (error: any) => void): void;
 
-  unnotifyTemperature(callback: (error: any) => void): void;
-  readTemperature(callback: (error: any, lux: any) => void): void;
+  unnotifyIrTemperature(callback: (error: any) => void): void;
+  readIrTemperature(callback: (error: any, lux: any) => void): void;
 
   on(event: SensorTagEvent, callback: (x: any, y?: any, z?: any) => void): void;
 
@@ -98,14 +98,14 @@ export class SensorTags {
         sensorTag.luxometer$.next(lux);
       });
 
-      sensorTag.enableTemperature(debugErrorFn);
-      sensorTag.notifyTemperature(debugErrorFn);
+      sensorTag.enableIrTemperature(debugErrorFn);
+      sensorTag.notifyIrTemperature(debugErrorFn);
       sensorTag.on(
         'irTemperatureChange',
-        (objectTemperature: any, ambientTemperature: any) => {
+        (objectIrTemperature: any, ambientIrTemperature: any) => {
           sensorTag.temperature$.next({
-            objectTemperature: objectTemperature,
-            ambientTemperature: ambientTemperature
+            objectIrTemperature: objectIrTemperature,
+            ambientIrTemperature: ambientIrTemperature
           });
         }
       );
