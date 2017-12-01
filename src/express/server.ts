@@ -7,6 +7,7 @@ import * as path from 'path';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/map';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 let st = require('sensortag');
 
@@ -26,7 +27,6 @@ export class Server {
 
     this.createSocketIoServer();
 
-    // this.middleware();
     this.routes();
 
     this.initSensorTags();
@@ -59,12 +59,19 @@ export class Server {
     });
   }
 
+  /**
+   * Configures socket events
+   */
   private setUpSocketEvents() {
     this.ioServer.on('connection', (socket: SocketIO.Socket) => {
       let request: express.Request = socket.request;
       console.log('A user connected with id ', socket.id);
       socket.on('disconnect', () => {
         console.log('User %s disconnected', socket.id);
+      });
+
+      socket.on('pullingPeriod', (period: number) => {
+        this.sensorTagCtl.defaultPullingPeriod$.next(period);
       });
     });
   }
@@ -111,8 +118,16 @@ export class Server {
 
   private setupBroadCast() {
     console.log('Seting up broad cast');
+
+    // Pulling Period
+    this.sensorTagCtl.defaultPullingPeriod$.subscribe(period => {
+      this.ioServer.emit('pullingPeriod', period);
+    });
+
+    // Sensor Tag
     let sensorTags = this.sensorTagCtl.sensorTags;
     let sources: Observable<any>[] = [];
+    // Combind luxometer and temperature
     sensorTags.forEach(sensorTag => {
       let data: any = { id: sensorTag.id };
       let source = sensorTag.luxometer$.mergeMap(luxometer => {
@@ -126,9 +141,9 @@ export class Server {
       sources.push(source);
     });
 
+    // Subscribe and emit sensor tag
     sources.forEach(obs => {
       obs.subscribe(data => {
-        console.log(data);
         this.ioServer.emit('sensorTag', data);
       });
     });

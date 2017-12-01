@@ -3,6 +3,8 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 const ST = require('sensortag');
 // import * as ST from '../../node_modules/sensortag';
 
+import 'rxjs/add/operator/distinctUntilChanged';
+
 export type SensorTagEvent = 'irTemperatureChange' | 'luxometerChange';
 
 export interface SensorTagI {
@@ -57,10 +59,14 @@ export class SensorTags {
   private _ids = [this.defaultSensorUUID, this.secondarySensorUUID];
   private _connectedDeviceCount = 0;
   sensorTags: SensorTagI[] = [];
-  constructor() {
-    // this.connectAndSetUp();
-  }
+  //
+  defaultPullingPeriod$ = new BehaviorSubject<number>(1);
+  constructor() {}
 
+  /**
+   *
+   * @param id {string} sensor UUID
+   */
   private async discoverById(id: string) {
     return await new Promise<SensorTagI>((resolve, reject) => {
       ST.discoverById(id, (sensorTag: SensorTagI) => {
@@ -71,6 +77,11 @@ export class SensorTags {
     });
   }
 
+  /**
+   *
+   * @param sensorTag {SensorTagI}
+   * Connects to sensor
+   */
   private async _connect(sensorTag: SensorTagI) {
     return await new Promise<SensorTagI>((resolve, reject) => {
       sensorTag.connectAndSetUp(error => {
@@ -84,7 +95,11 @@ export class SensorTags {
       });
     });
   }
-
+  /**
+   *
+   * @param sensorTag {SensorTagI}
+   * Enables meters and notifications
+   */
   private async _setup(sensorTag: SensorTagI) {
     return await new Promise<SensorTagI>((resolve, reject) => {
       // Create Observables
@@ -113,6 +128,10 @@ export class SensorTags {
     });
   }
 
+  /**
+   * Driver: connect and setup all sensor tags in order
+   *
+   */
   private async _connectSetUpAll() {
     await Promise.all(
       this._ids.map(async id => {
@@ -133,10 +152,55 @@ export class SensorTags {
     );
   }
 
+  /**
+   * Call internal connect and setup
+   */
   async connectAndSetUp() {
     await this._connectSetUpAll();
+    this.watchForPeriodChange();
   }
 
+  /**
+   *
+   * @param period {number}
+   *
+   */
+  private setNewPullingPeriod(period: number) {
+    this.sensorTags.forEach(sensorTag => {
+      if (period >= 0) {
+        return;
+      }
+      // convert to ms
+      period = period * 1000;
+      sensorTag.setIrTemperaturePeriod(period, error => {
+        if (error) {
+          debugErrorFn(error);
+        } else {
+          console.log('New period set for temp:', period, 'ms');
+        }
+      });
+      sensorTag.setLuxometerPeriod(period, error => {
+        if (error) {
+          debugErrorFn(error);
+        } else {
+          console.log('New period set for lux:', period, 'ms');
+        }
+      });
+    });
+  }
+
+  /**
+   * Subcribes to default period for change to call {setNewPullingPeriod}
+   */
+  private watchForPeriodChange() {
+    this.defaultPullingPeriod$.distinctUntilChanged().subscribe(period => {
+      this.setNewPullingPeriod(period);
+    });
+  }
+
+  /**
+   * Disconnect all sensor tags
+   */
   disconnect() {
     this.sensorTags.forEach(sensor => {
       sensor.disconnect(err => {
@@ -147,5 +211,7 @@ export class SensorTags {
 }
 
 function debugErrorFn(err: any) {
-  console.log(err);
+  if (err) {
+    console.log(err);
+  }
 }
