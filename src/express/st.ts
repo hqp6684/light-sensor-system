@@ -60,7 +60,7 @@ export class SensorTags {
   private _connectedDeviceCount = 0;
   sensorTags: SensorTagI[] = [];
   //
-  defaultPullingPeriod$ = new BehaviorSubject<number>(1);
+  defaultPullingPeriod$ = new BehaviorSubject<number>(5);
   constructor() {}
 
   /**
@@ -165,25 +165,43 @@ export class SensorTags {
    * @param period {number}
    *
    */
-  private setNewPullingPeriod(period: number) {
-    this.sensorTags.forEach(sensorTag => {
-      if (period >= 0) {
-        return;
-      }
-      // convert to ms
-      period = period * 1000;
+  private async setNewPullingPeriod(period: number) {
+    // this.sensorTags.forEach(sensorTag => {
+    if (period <= 0) {
+      return;
+    }
+    period = period * 1000;
+
+    await Promise.all(
+      this.sensorTags.map(async sensorTag => {
+        sensorTag = await this.setLuxPeriod(sensorTag, period);
+        sensorTag = await this.setTempPeriod(sensorTag, period);
+      })
+    );
+  }
+  private async setTempPeriod(sensorTag: SensorTagI, period: number) {
+    return await new Promise<SensorTagI>((resolve, reject) => {
       sensorTag.setIrTemperaturePeriod(period, error => {
         if (error) {
           debugErrorFn(error);
+          reject(sensorTag);
         } else {
           console.log('New period set for temp:', period, 'ms');
+          resolve(sensorTag);
         }
       });
+    });
+  }
+
+  private async setLuxPeriod(sensorTag: SensorTagI, period: number) {
+    return await new Promise<SensorTagI>((resolve, reject) => {
       sensorTag.setLuxometerPeriod(period, error => {
         if (error) {
           debugErrorFn(error);
+          reject(sensorTag);
         } else {
           console.log('New period set for lux:', period, 'ms');
+          resolve(sensorTag);
         }
       });
     });
@@ -194,6 +212,7 @@ export class SensorTags {
    */
   private watchForPeriodChange() {
     this.defaultPullingPeriod$.distinctUntilChanged().subscribe(period => {
+      console.log('New pulling period received ', period);
       this.setNewPullingPeriod(period);
     });
   }

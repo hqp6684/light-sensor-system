@@ -7,7 +7,7 @@
 </ion-header>
 
 
-<ion-content class="outer-content">
+<ion-content>
 
   <ion-list>
     <ion-list-header>
@@ -15,7 +15,7 @@
     </ion-list-header>
 
     <ion-item>
-      <ion-icon name="code-download" item-start color="primary"></ion-icon>
+      <ion-icon name="timer" item-start color="primary"></ion-icon>
       <ion-label>Pulling Period</ion-label>
       <!-- <ion-toggle color="secondary"></ion-toggle> -->
 
@@ -29,14 +29,18 @@
       </ng-template>
 
     </ion-item>
-
+    <ion-item>
+      <ion-icon name="plane" item-start color="danger"></ion-icon>
+      <ion-label>Airplane Mode</ion-label>
+      <ion-toggle color="secondary"></ion-toggle>
+    </ion-item>
     <button ion-item>
-      <ion-icon name="wifi" item-start color="primary"></ion-icon>
+      <ion-icon name="code-download" item-start color="secondary"></ion-icon>
       <ion-label>Wi-Fi</ion-label>
       <ion-note item-end>The Interwebz</ion-note>
     </button>
 
-    <button ion-item>
+    <!-- <button ion-item>
       <ion-icon name="bluetooth" item-start color="primary"></ion-icon>
       <ion-label>Bluetooth</ion-label>
       <ion-note item-end>Off</ion-note>
@@ -51,21 +55,24 @@
       <ion-icon name="link" item-start color="secondary"></ion-icon>
       <ion-label>Personal Hotspot</ion-label>
       <ion-note item-end>Off</ion-note>
-    </button>
+    </button> -->
   </ion-list>
 
-  <ion-list radio-group>
+  <ion-list radio-group [(ngModel)]="defaultTempUnit" (ionChange)="setDefaultTempUnit()">
     <ion-list-header>
+      <ion-icon name="thermometer"></ion-icon>
       Temperature
     </ion-list-header>
 
     <ion-item>
-      <ion-label color="dark">Always</ion-label>
-      <ion-radio value="always" checked></ion-radio>
+      <ion-label color="dark">Fahrenheit </ion-label>
+      <ion-radio value="f"> </ion-radio>
+      <ion-note item-end> &#x2109;</ion-note>
     </ion-item>
     <ion-item>
-      <ion-label color="dark">Only while phone is locked</ion-label>
-      <ion-radio value="locked"></ion-radio>
+      <ion-label color="dark">Celsius</ion-label>
+      <ion-radio value="c"></ion-radio>
+      <ion-note item-end> &#x2103;</ion-note>
     </ion-item>
   </ion-list>
 

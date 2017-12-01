@@ -13,17 +13,34 @@
     Take a look at the
     <code>src/pages/</code> directory to add or change tabs, update any existing page or create new pages.
   </p>
-  <ion-list>
+  <ion-list *ngFor="let sensorTag of sensorTags$ | async">
+
+
     <ion-list-header>
-      Apps Installed
+      Sensor ID : {{sensorTag.id}}
     </ion-list-header>
 
     <ion-item>
-      <ion-icon name="ionic" item-start color="primary"></ion-icon>
-      <ion-label>Ionic View</ion-label>
-      <button ion-button outline item-end>Uninstall</button>
+      <ion-icon name="thermometer" item-start color="primary"></ion-icon>
+      <ion-label>Ambient Temperature</ion-label>
+      <button ion-button outline item-end>
+        {{sensorTag.temperatures.ambientIrTemperature | temperature:defaultTempUnit}}
+      </button>
     </ion-item>
+
+
     <ion-item>
+      <ion-icon name="bulb" item-start color="primary"></ion-icon>
+      <ion-label>Photometer</ion-label>
+      <button ion-button outline item-end>
+        {{sensorTag.luxometer}}
+      </button>
+    </ion-item>
+
+
+
+
+    <!-- <ion-item>
       <ion-icon name="brush" item-start color="primary"></ion-icon>
       <ion-label>Ionic Creator</ion-label>
       <button ion-button outline item-end>Uninstall</button>
@@ -37,7 +54,7 @@
       <ion-icon name="paw" item-start color="danger"></ion-icon>
       <ion-label>Barkpark</ion-label>
       <button ion-button outline item-end>Uninstall</button>
-    </ion-item>
+    </ion-item> -->
   </ion-list>
 
 </ion-content>

@@ -71,6 +71,7 @@ export class Server {
       });
 
       socket.on('pullingPeriod', (period: number) => {
+        console.log('New pulling period received ', period);
         this.sensorTagCtl.defaultPullingPeriod$.next(period);
       });
     });

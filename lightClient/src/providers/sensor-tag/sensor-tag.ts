@@ -46,9 +46,9 @@ export class SensorTagProvider {
     });
 
     this.socket.on('sensorTag', (sensorTag: SensorTagI) => {
-      console.log(sensorTag);
       let currentValues = this.sensorTags$.value;
       currentValues.set(sensorTag.id, sensorTag);
+      this.sensorTags$.next(currentValues);
     });
 
     this.socket.on('pullingPeriod', (period: number) => {
@@ -57,11 +57,9 @@ export class SensorTagProvider {
   }
 
   setNewPullingPeriod(period: number) {
-    if (period >= 0) {
+    if (period <= 0) {
       return;
     }
-    // convert to ms
-    period = period * 1000;
     this.socket.emit('pullingPeriod', period);
     this.defaultPullingPeriod$.next(period);
   }

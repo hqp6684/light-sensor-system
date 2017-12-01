@@ -1,5 +1,4 @@
 import { NgModule, ErrorHandler } from '@angular/core';
-import { NgPlural } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { MyApp } from './app.component';
@@ -14,10 +13,11 @@ import { StatusBarMock } from '@ionic-native-mocks/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { SplashScreenMock } from '@ionic-native-mocks/splash-screen';
 import { SensorTagProvider } from '../providers/sensor-tag/sensor-tag';
+import { PipesModule } from '../pipes/pipes.module';
 
 @NgModule({
   declarations: [MyApp, AboutPage, ContactPage, HomePage, TabsPage],
-  imports: [BrowserModule, IonicModule.forRoot(MyApp)],
+  imports: [BrowserModule, IonicModule.forRoot(MyApp), PipesModule],
   bootstrap: [IonicApp],
   entryComponents: [MyApp, AboutPage, ContactPage, HomePage, TabsPage],
   providers: [
