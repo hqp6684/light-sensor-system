@@ -109,6 +109,7 @@ export class SensorTags {
           });
         }
       );
+      resolve(sensorTag);
     });
   }
 
@@ -133,7 +134,7 @@ export class SensorTags {
   }
 
   async connectAndSetUp() {
-    this._connectSetUpAll();
+    await this._connectSetUpAll();
   }
 
   disconnect() {

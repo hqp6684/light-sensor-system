@@ -5,6 +5,8 @@ import { SensorTags } from './st';
 
 import * as path from 'path';
 import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/mergeMap';
+import 'rxjs/add/operator/map';
 
 let st = require('sensortag');
 
@@ -108,6 +110,7 @@ export class Server {
   }
 
   private setupBroadCast() {
+    console.log('Seting up broad cast');
     let sensorTags = this.sensorTagCtl.sensorTags;
     let sources: Observable<any>[] = [];
     sensorTags.forEach(sensorTag => {
