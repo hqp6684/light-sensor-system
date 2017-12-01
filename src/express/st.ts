@@ -60,6 +60,7 @@ export interface SensorTagI {
   luxometer$: BehaviorSubject<number>;
   temperature$: BehaviorSubject<any>;
   batteryLevel$: BehaviorSubject<number>;
+  notifications$: BehaviorSubject<boolean>;
 }
 
 export class SensorTags {
@@ -110,21 +111,28 @@ export class SensorTags {
    * Enables meters and notifications
    */
   private async _setup(sensorTag: SensorTagI) {
-    return await new Promise<SensorTagI>((resolve, reject) => {
+    sensorTag = await new Promise<SensorTagI>((resolve, reject) => {
       // Create Observables
       sensorTag.luxometer$ = new BehaviorSubject(0);
       sensorTag.temperature$ = new BehaviorSubject(null);
       sensorTag.batteryLevel$ = new BehaviorSubject(92);
+      sensorTag.notifications$ = new BehaviorSubject(true);
 
+      // Enbles different sensors
       sensorTag.enableLuxometer(debugErrorFn);
-      // Tell sensor tag to notify
-      sensorTag.notifyLuxometer(debugErrorFn);
+      sensorTag.enableIrTemperature(debugErrorFn);
+
+      resolve(sensorTag);
+    });
+
+    sensorTag = await this._enableNotifications(sensorTag);
+    sensorTag = await this._readBatteryLevel(sensorTag);
+
+    // Finally : Config what happen on new notificaton
+    return await new Promise<SensorTagI>((resolve, reject) => {
       sensorTag.on('luxometerChange', lux => {
         sensorTag.luxometer$.next(lux);
       });
-
-      sensorTag.enableIrTemperature(debugErrorFn);
-      sensorTag.notifyIrTemperature(debugErrorFn);
       sensorTag.on(
         'irTemperatureChange',
         (objectIrTemperature: any, ambientIrTemperature: any) => {
@@ -134,17 +142,6 @@ export class SensorTags {
           });
         }
       );
-
-      Observable.interval(10000)
-        .startWith(0)
-        .subscribe(async () => {
-          await Promise.all(
-            this.sensorTags.map(async sensorTag => {
-              sensorTag = await this._readBatteryLevel(sensorTag);
-            })
-          );
-        });
-
       resolve(sensorTag);
     });
   }
@@ -160,6 +157,64 @@ export class SensorTags {
           resolve(sensorTag);
         }
       });
+    });
+  }
+
+  private async _disableNotifications(sensorTag: SensorTagI) {
+    return await new Promise<SensorTagI>((resolve, reject) => {
+      sensorTag.unnotifyIrTemperature(error => {
+        if (error) {
+          debugErrorFn(error);
+        }
+        sensorTag.unnotifyLuxometer(error => {
+          if (error) {
+            debugErrorFn(error);
+          }
+          sensorTag.notifications$.next(false);
+          resolve(sensorTag);
+        });
+      });
+    });
+  }
+
+  public toggleNotifications(data: { id: string; status: boolean }) {
+    data.status
+      ? this.enableNotifications(data.id)
+      : this.disableNotifications(data.id);
+  }
+  private disableNotifications(id: string) {
+    this.sensorTags.forEach(async sensorTag => {
+      if (sensorTag.id === id) {
+        // update battery level
+        sensorTag = await this._readBatteryLevel(sensorTag);
+        sensorTag = await this._disableNotifications(sensorTag);
+      }
+    });
+  }
+
+  private async _enableNotifications(sensorTag: SensorTagI) {
+    return await new Promise<SensorTagI>((resolve, reject) => {
+      sensorTag.notifyIrTemperature(error => {
+        if (error) {
+          debugErrorFn(error);
+        }
+        sensorTag.notifyLuxometer(error => {
+          if (error) {
+            debugErrorFn(error);
+          }
+          sensorTag.notifications$.next(true);
+          resolve(sensorTag);
+        });
+      });
+    });
+  }
+  private enableNotifications(id: string) {
+    this.sensorTags.forEach(async sensorTag => {
+      if (sensorTag.id === id) {
+        // update battery level
+        sensorTag = await this._readBatteryLevel(sensorTag);
+        sensorTag = await this._enableNotifications(sensorTag);
+      }
     });
   }
 

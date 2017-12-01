@@ -6,8 +6,9 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 export interface SensorTagI {
   id: string;
   luxometer: number;
-  temperatures: { objectTemperatre: any; ambientTemperature: any };
+  temperatures: { objectTemperatre: any; ambientIrTemperature: any };
   batteryLevel: number;
+  notifications: boolean;
 }
 
 /*
@@ -63,5 +64,12 @@ export class SensorTagProvider {
     }
     this.socket.emit('pullingPeriod', period);
     this.defaultPullingPeriod$.next(period);
+  }
+
+  toggleNotifications(sensorTag: SensorTagI) {
+    this.socket.emit('notifications', {
+      id: sensorTag.id,
+      status: sensorTag.notificaitons
+    });
   }
 }

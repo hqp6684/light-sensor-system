@@ -74,6 +74,12 @@ export class Server {
       socket.on('pullingPeriod', (period: number) => {
         this.sensorTagCtl.defaultPullingPeriod$.next(period);
       });
+
+      // disable/enable notifications
+
+      socket.on('notifications', (data: { id: string; status: boolean }) => {
+        this.sensorTagCtl.toggleNotifications(data);
+      });
     });
   }
 
@@ -143,6 +149,12 @@ export class Server {
             .mergeMap(data => {
               return sensorTag.batteryLevel$.map(batteryLevel => {
                 data.batteryLevel = batteryLevel;
+                return data;
+              });
+            })
+            .mergeMap(data => {
+              return sensorTag.notifications$.map(status => {
+                data.notifications = status;
                 return data;
               });
             });
