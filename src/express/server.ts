@@ -6,6 +6,7 @@ import { SensorTags } from './st';
 import * as path from 'path';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/mergeMap';
+import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/map';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
@@ -71,7 +72,6 @@ export class Server {
       });
 
       socket.on('pullingPeriod', (period: number) => {
-        console.log('New pulling period received ', period);
         this.sensorTagCtl.defaultPullingPeriod$.next(period);
       });
     });
@@ -131,14 +131,23 @@ export class Server {
     // Combind luxometer and temperature
     sensorTags.forEach(sensorTag => {
       let data: any = { id: sensorTag.id };
-      let source = sensorTag.luxometer$.mergeMap(luxometer => {
-        data.luxometer = luxometer;
+      let source = sensorTag.luxometer$
+        .mergeMap(luxometer => {
+          data.luxometer = luxometer;
 
-        return sensorTag.temperature$.map(temperatures => {
-          data.temperatures = temperatures;
-          return data;
-        });
-      });
+          return sensorTag.temperature$
+            .map(temperatures => {
+              data.temperatures = temperatures;
+              return data;
+            })
+            .mergeMap(data => {
+              return sensorTag.batteryLevel$.map(batteryLevel => {
+                data.batteryLevel = batteryLevel;
+                return data;
+              });
+            });
+        })
+        .debounceTime(500);
       sources.push(source);
     });
 

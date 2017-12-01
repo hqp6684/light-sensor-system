@@ -29,6 +29,7 @@
     </ion-item>
 
 
+
     <ion-item>
       <ion-icon name="bulb" item-start color="primary"></ion-icon>
       <ion-label>Photometer</ion-label>
@@ -37,6 +38,15 @@
       </button>
     </ion-item>
 
+
+
+    <ion-item>
+      <ion-icon name="battery-full" item-start color="primary"></ion-icon>
+      <ion-label>Battery Level</ion-label>
+      <button ion-button outline item-end>
+        {{sensorTag.batteryLevel}} %
+      </button>
+    </ion-item>
 
 
 

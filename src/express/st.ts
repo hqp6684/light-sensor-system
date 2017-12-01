@@ -4,6 +4,8 @@ const ST = require('sensortag');
 // import * as ST from '../../node_modules/sensortag';
 
 import 'rxjs/add/operator/distinctUntilChanged';
+import 'rxjs/add/operator/startWith';
+import { setInterval } from 'timers';
 
 export type SensorTagEvent = 'irTemperatureChange' | 'luxometerChange';
 
@@ -47,10 +49,17 @@ export interface SensorTagI {
   unnotifyIrTemperature(callback: (error: any) => void): void;
   readIrTemperature(callback: (error: any, lux: any) => void): void;
 
+  // battery
+
+  readBatteryLevel(
+    callback: (error: Error, batteryLevel: number) => void
+  ): void;
+
   on(event: SensorTagEvent, callback: (x: any, y?: any, z?: any) => void): void;
 
   luxometer$: BehaviorSubject<number>;
   temperature$: BehaviorSubject<any>;
+  batteryLevel$: BehaviorSubject<number>;
 }
 
 export class SensorTags {
@@ -60,7 +69,7 @@ export class SensorTags {
   private _connectedDeviceCount = 0;
   sensorTags: SensorTagI[] = [];
   //
-  defaultPullingPeriod$ = new BehaviorSubject<number>(5);
+  defaultPullingPeriod$ = new BehaviorSubject<number>(1);
   constructor() {}
 
   /**
@@ -105,6 +114,7 @@ export class SensorTags {
       // Create Observables
       sensorTag.luxometer$ = new BehaviorSubject(0);
       sensorTag.temperature$ = new BehaviorSubject(null);
+      sensorTag.batteryLevel$ = new BehaviorSubject(92);
 
       sensorTag.enableLuxometer(debugErrorFn);
       // Tell sensor tag to notify
@@ -124,7 +134,32 @@ export class SensorTags {
           });
         }
       );
+
+      Observable.interval(10000)
+        .startWith(0)
+        .subscribe(async () => {
+          await Promise.all(
+            this.sensorTags.map(async sensorTag => {
+              sensorTag = await this._readBatteryLevel(sensorTag);
+            })
+          );
+        });
+
       resolve(sensorTag);
+    });
+  }
+
+  private async _readBatteryLevel(sensorTag: SensorTagI) {
+    return new Promise<SensorTagI>((resolve, reject) => {
+      sensorTag.readBatteryLevel((error, batteryLevel) => {
+        if (error) {
+          debugErrorFn(error);
+          reject(sensorTag);
+        } else {
+          sensorTag.batteryLevel$.next(batteryLevel);
+          resolve(sensorTag);
+        }
+      });
     });
   }
 

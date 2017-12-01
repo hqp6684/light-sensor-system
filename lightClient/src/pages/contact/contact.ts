@@ -37,27 +37,27 @@ export class ContactPage implements OnInit {
       title: 'Modify pulling period',
       buttons: [
         {
-          text: '1 Second',
+          text: '500 milliseconds',
+          handler: () => {
+            this.sensorTagProvider.setNewPullingPeriod(0.5);
+          }
+        },
+        {
+          text: '1 second',
           handler: () => {
             this.sensorTagProvider.setNewPullingPeriod(1);
           }
         },
         {
-          text: '5 Seconds',
+          text: '2 seconds',
           handler: () => {
-            this.sensorTagProvider.setNewPullingPeriod(5);
+            this.sensorTagProvider.setNewPullingPeriod(2);
           }
         },
         {
-          text: '30 Seconds',
+          text: '2.55 seconds',
           handler: () => {
-            this.sensorTagProvider.setNewPullingPeriod(30);
-          }
-        },
-        {
-          text: '1 Minute',
-          handler: () => {
-            this.sensorTagProvider.setNewPullingPeriod(60);
+            this.sensorTagProvider.setNewPullingPeriod(2.55);
           }
         },
         {

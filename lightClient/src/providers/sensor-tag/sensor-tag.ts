@@ -7,6 +7,7 @@ export interface SensorTagI {
   id: string;
   luxometer: number;
   temperatures: { objectTemperatre: any; ambientTemperature: any };
+  batteryLevel: number;
 }
 
 /*
