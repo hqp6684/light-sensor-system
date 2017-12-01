@@ -14,5 +14,7 @@
     "inlineSources": true,
     "allowJs": true,
     "typeRoots": ["./node_modules/@types"]
-  }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "lightClient"]
 }
