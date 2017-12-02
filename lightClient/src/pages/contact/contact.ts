@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { NavController, ActionSheetController } from 'ionic-angular';
 import { SensorTagProvider } from '../../providers/sensor-tag/sensor-tag';
 import { OnInit } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
 
 @Component({
   selector: 'page-contact',
@@ -10,7 +9,6 @@ import { Observable } from 'rxjs/Observable';
 })
 export class ContactPage implements OnInit {
   defaultPullingPeriod: number = 1;
-  pullingPeriods = [1, 5, 30, 60];
   defaultTempUnit = 'f';
   constructor(
     public navCtrl: NavController,

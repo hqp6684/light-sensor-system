@@ -162,6 +162,7 @@ export class SensorTags {
 
   private async _disableNotifications(sensorTag: SensorTagI) {
     return await new Promise<SensorTagI>((resolve, reject) => {
+      console.log('Disable notification');
       sensorTag.unnotifyIrTemperature(error => {
         if (error) {
           debugErrorFn(error);
@@ -178,9 +179,10 @@ export class SensorTags {
   }
 
   public toggleNotifications(data: { id: string; status: boolean }) {
+    console.log('Toogle Notifications');
     data.status
-      ? this.enableNotifications(data.id)
-      : this.disableNotifications(data.id);
+      ? this.disableNotifications(data.id)
+      : this.enableNotifications(data.id);
   }
   private disableNotifications(id: string) {
     this.sensorTags.forEach(async sensorTag => {
@@ -194,6 +196,8 @@ export class SensorTags {
 
   private async _enableNotifications(sensorTag: SensorTagI) {
     return await new Promise<SensorTagI>((resolve, reject) => {
+      console.log('Enable notification');
+
       sensorTag.notifyIrTemperature(error => {
         if (error) {
           debugErrorFn(error);

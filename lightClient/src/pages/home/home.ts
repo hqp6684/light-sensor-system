@@ -21,7 +21,6 @@ export class HomePage implements OnInit {
   ) {}
 
   defaultTempUnit = 'f';
-  sensorTags: SensorTagI[] = [];
   sensorTags$: Observable<SensorTagI[]>;
 
   ngOnInit() {
@@ -38,14 +37,14 @@ export class HomePage implements OnInit {
         return newSensors;
       })
       .filter(array => array.length > 0)
-      .debounceTime(10);
-
-    // this.sensorTags$.subscribe(test => {
-    //   this.sensorTags = test;
-    // });
+      .debounceTime(100);
   }
 
   trackBySensorId(index: number, item: SensorTagI) {
     return item.id;
+  }
+
+  toggleNotifications(sensorTag: SensorTagI) {
+    this.sensorTagProvider.toggleNotifications(sensorTag);
   }
 }

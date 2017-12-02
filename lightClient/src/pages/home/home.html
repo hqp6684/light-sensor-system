@@ -27,6 +27,13 @@
         {{sensorTag.temperatures.ambientIrTemperature | temperature:defaultTempUnit}}
       </button>
     </ion-item>
+    <ion-item>
+      <ion-icon name="thermometer" item-start color="primary"></ion-icon>
+      <ion-label>Object Temperature</ion-label>
+      <button ion-button outline item-end>
+        {{sensorTag.temperatures.objectIrTemperature | temperature:defaultTempUnit}}
+      </button>
+    </ion-item>
 
 
 
@@ -51,7 +58,7 @@
     <ion-item>
       <ion-icon name="pulse" item-start color="primary"></ion-icon>
       <ion-label>Broadcasting</ion-label>
-      <button ion-button outline item-end>
+      <button ion-button outline item-end (click)="toggleNotifications(sensorTag)">
         {{sensorTag.notifications | onOff}}
       </button>
     </ion-item>

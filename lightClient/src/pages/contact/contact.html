@@ -19,17 +19,12 @@
       <ion-label>Pulling Period</ion-label>
       <!-- <ion-toggle color="secondary"></ion-toggle> -->
 
-      <button ion-button outline item-end (click)="presentPullingPeriodActionSheet()" *ngIf="defaultPullingPeriod===1;else seconds">
-        {{defaultPullingPeriod}} second
+      <button ion-button outline item-end (click)="presentPullingPeriodActionSheet()">
+        {{defaultPullingPeriod|pullPeriod}}
       </button>
-      <ng-template #seconds>
-        <button ion-button outline item-end (click)="presentPullingPeriodActionSheet()">
-          {{defaultPullingPeriod}} seconds
-        </button>
-      </ng-template>
 
     </ion-item>
-    <ion-item>
+    <!-- <ion-item>
       <ion-icon name="plane" item-start color="danger"></ion-icon>
       <ion-label>Airplane Mode</ion-label>
       <ion-toggle color="secondary"></ion-toggle>
@@ -38,7 +33,7 @@
       <ion-icon name="code-download" item-start color="secondary"></ion-icon>
       <ion-label>Wi-Fi</ion-label>
       <ion-note item-end>The Interwebz</ion-note>
-    </button>
+    </button> -->
 
     <!-- <button ion-item>
       <ion-icon name="bluetooth" item-start color="primary"></ion-icon>

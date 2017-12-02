@@ -69,7 +69,7 @@ export class SensorTagProvider {
   toggleNotifications(sensorTag: SensorTagI) {
     this.socket.emit('notifications', {
       id: sensorTag.id,
-      status: sensorTag.notificaitons
+      status: sensorTag.notifications
     });
   }
 }
