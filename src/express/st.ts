@@ -70,7 +70,7 @@ export class SensorTags {
   private _connectedDeviceCount = 0;
   sensorTags: SensorTagI[] = [];
   //
-  defaultPullingPeriod$ = new BehaviorSubject<number>(1);
+  defaultPullingPeriod$ = new BehaviorSubject<number>(2);
   constructor() {}
 
   /**
